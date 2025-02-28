@@ -1,0 +1,60 @@
+name: CI Workflow
+
+on:
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  lint_and_test:
+    runs-on: ubuntu-latest
+
+    env:
+      DB_ASYNC_CONNECTION_STR: postgresql://postgres:postgres@localhost:5432/test_db
+
+    services:
+      postgres:
+        image: postgres:16
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd="pg_isready -U postgres" 
+          --health-timeout=5s
+          --health-interval=10s
+          --health-retries=5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.create false && 
+          poetry install --no-interaction --no-root
+
+      - name: Run check lint
+        run: poetry run ruff check .
+
+      - name: Run migrations
+        run: |
+          poetry run python3 app/manage.py migrate
+
+      - name: Run django checks
+        run: poetry run python3 app/manage.py check
+
+      - name: Run tests with pytest
+        run: poetry run pytest --maxfail=1 -p no:warnings

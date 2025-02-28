@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "student",
     "question",
     "exam",
-    "utils",
     "submission"
 ]
 
@@ -81,15 +80,23 @@ WSGI_APPLICATION = "medway_api.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        'ENGINE': "django.db.backends.postgresql",
-        'NAME': os.environ.get("POSTGRES_DB", "teste"),
-        'USER': os.environ.get("POSTGRES_USER"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
-        'PORT': os.environ.get("POSTGRES_PORT", "5432"),
-    }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', 'teste'),
+        'USER': os.environ.get('POSTGRES_USER', 'teste'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'teste'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'TEST': {
+            'NAME': os.environ.get('POSTGRES_TEST_DB', 'medway_test'),
+            'USER': os.environ.get('POSTGRES_USER', 'teste'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'teste'),
+            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        },
+    },
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
